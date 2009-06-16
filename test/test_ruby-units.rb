@@ -84,6 +84,11 @@ class TestRubyUnits < Test::Unit::TestCase
     assert_equal :rate, "68 bpm".u.classification
   end
   
+  def test_time_classification
+    assert_equal :time, "15 min".u.classification
+    assert_equal :time, "00:15:12".u.classification
+  end
+  
   def test_to_yaml
     unit = "1 mm".u
     assert_equal "--- !ruby/object:Unit \nscalar: 1.0\nclassification: :length\nnumerator: \n- <milli>\n- <meter>\ndenominator: \n- <1>\nsignature: 1\nbase_scalar: 0.001\n", unit.to_yaml

@@ -219,7 +219,7 @@ class Unit < Numeric
     case options[0]
     when Hash:
       @scalar = options[0][:scalar] || 1
-      @classification = options[0][:classification] || :counting
+      @classification = options[0][:classification]
       @numerator = options[0][:numerator] || UNITY_ARRAY
       @denominator = options[0][:denominator] || UNITY_ARRAY
       @signature = options[0][:signature]
@@ -1050,6 +1050,7 @@ class Unit < Numeric
                "#{seconds || 0} seconds".unit +
                "#{microseconds || 0} usec".unit
       copy(result)
+      @classification = :time
       return
     end
     
@@ -1060,6 +1061,7 @@ class Unit < Numeric
     if (feet && inches)
       result = Unit.new("#{feet} ft") + Unit.new("#{inches} inches")
       copy(result)
+      @classification = :length
       return 
     end
 
@@ -1068,7 +1070,8 @@ class Unit < Numeric
     if (pounds && oz)
       result = Unit.new("#{pounds} lbs") + Unit.new("#{oz} oz")
       copy(result)
-      return 
+      @classification = :mass
+      return
     end
     
     raise( ArgumentError, "'#{passed_unit_string}' Unit not recognized") if unit_string.count('/') > 1
