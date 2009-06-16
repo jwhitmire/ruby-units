@@ -78,7 +78,7 @@ UNIT_DEFINITIONS = {
   '<gallon>'=>  [%w{gal gallon gallons}, 0.0037854118, :volume, %w{<meter> <meter> <meter>}],
   '<quart>'=>  [%w{qt quart quarts}, 0.00094635295, :volume, %w{<meter> <meter> <meter>}],
   '<pint>'=>  [%w{pt pint pints}, 0.000473176475, :volume, %w{<meter> <meter> <meter>}],
-  '<cup>'=>  [%w{cu cup cups}, 0.000236588238, :volume, %w{<meter> <meter> <meter>}],
+  '<cup>'=>  [%w{c cu cup cups}, 0.000236588238, :volume, %w{<meter> <meter> <meter>}],
   '<fluid-ounce>'=>  [%w{floz fluid-ounce}, 2.95735297e-5, :volume, %w{<meter> <meter> <meter>}],
   '<tablespoon>'=>  [%w{tbs tablespoon tablespoons}, 1.47867648e-5, :volume, %w{<meter> <meter> <meter>}],
   '<teaspoon>'=>  [%w{tsp teaspoon teaspoons}, 4.92892161e-6, :volume, %w{<meter> <meter> <meter>}],
@@ -244,7 +244,6 @@ UNIT_DEFINITIONS = {
   '<ppt>' =>  [%w{ppt},1e-9,:prefix_only, %w{<1>}],
   '<gross>' =>  [%w{gr gross},144.0, :prefix_only, %w{<dozen> <dozen>}],
   '<decibel>'  => [%w{dB decibel decibels}, 1.0, :logarithmic, %w{<decibel>}]
-
 
 } # doc
 end

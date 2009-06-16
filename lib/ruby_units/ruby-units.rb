@@ -124,6 +124,7 @@ class Unit < Numeric
       else
         @@UNIT_VALUES[key]={}
         @@UNIT_VALUES[key][:scalar]=value[1]
+        @@UNIT_VALUES[key][:classification]=value[2]
         @@UNIT_VALUES[key][:numerator]=value[3] if value[3]
         @@UNIT_VALUES[key][:denominator]=value[4] if value[4]
         for name in value[0] do
@@ -140,10 +141,10 @@ class Unit < Numeric
   
   
   include Comparable
-  attr_accessor :scalar, :numerator, :denominator, :signature, :base_scalar, :base_numerator, :base_denominator, :output, :unit_name
+  attr_accessor :scalar, :classification, :numerator, :denominator, :signature, :base_scalar, :base_numerator, :base_denominator, :output, :unit_name
 
   def to_yaml_properties
-    %w{@scalar @numerator @denominator @signature @base_scalar}
+    %w{@scalar @classification @numerator @denominator @signature @base_scalar}
   end
   
   # needed to make complex units play nice -- otherwise not detected as a complex_generic
@@ -154,6 +155,7 @@ class Unit < Numeric
  
   def copy(from)
     @scalar = from.scalar
+    @classification = from.classification
     @numerator = from.numerator
     @denominator = from.denominator
     @is_base = from.is_base?
@@ -168,7 +170,7 @@ class Unit < Numeric
   def to_yaml( opts = {} )
     YAML::quick_emit( object_id, opts ) do |out|
       out.map( taguri, to_yaml_style ) do |map|
-        for m in to_yaml_properties do 
+        for m in to_yaml_properties do
           map.add( m[1..-1], instance_variable_get( m ) )
         end
       end
@@ -188,8 +190,10 @@ class Unit < Numeric
   #  8 lbs 8 oz -- recognized as 8 lbs + 8 ounces
   #
   def initialize(*options)
+    
     @scalar = nil
     @base_scalar = nil
+    @classification = nil
     @unit_name = nil
     @signature = nil
     @output = nil
@@ -215,6 +219,7 @@ class Unit < Numeric
     case options[0]
     when Hash:
       @scalar = options[0][:scalar] || 1
+      @classification = options[0][:classification] || :counting
       @numerator = options[0][:numerator] || UNITY_ARRAY
       @denominator = options[0][:denominator] || UNITY_ARRAY
       @signature = options[0][:signature]
@@ -226,14 +231,16 @@ class Unit < Numeric
       @numerator = @denominator = UNITY_ARRAY
     when Time:
       @scalar = options[0].to_f
+      @classification = :time
       @numerator = ['<second>']
       @denominator = UNITY_ARRAY
     when DateTime:
       @scalar = options[0].ajd
+      @classification = :time
       @numerator = ['<day>']
       @denominator = UNITY_ARRAY
     when "": raise ArgumentError, "No Unit Specified"
-    when String: parse(options[0])   
+    when String: parse(options[0])
     else
       raise ArgumentError, "Invalid Unit Format"
     end
@@ -248,7 +255,7 @@ class Unit < Numeric
     unless @@cached_units.keys.include?(unary_unit) || (unary_unit =~ /(temp|deg)(C|K|R|F)/) then
       @@cached_units[unary_unit] = (self.scalar == 1 ? self : unary_unit.unit)
     end
-    [@scalar, @numerator, @denominator, @base_scalar, @signature, @is_base].each {|x| x.freeze}
+    [@scalar, @classification, @numerator, @denominator, @base_scalar, @signature, @is_base].each {|x| x.freeze}
     self
   end
 
@@ -1095,9 +1102,17 @@ class Unit < Numeric
     @denominator = @denominator.map do |item|
        @@PREFIX_MAP[item[0]] ? [@@PREFIX_MAP[item[0]], @@UNIT_MAP[item[1]]] : [@@UNIT_MAP[item[1]]]
     end.flatten.compact.delete_if {|x| x.empty?}
-
+    
     @numerator = UNITY_ARRAY if @numerator.empty? 
     @denominator = UNITY_ARRAY if @denominator.empty?
+
+    @numerator.each do |item|
+      unless @@PREFIX_MAP.value?(item)
+        @classification = @@UNIT_VALUES[item][:classification]
+        break
+      end
+    end
+    
     self
   end 
 end

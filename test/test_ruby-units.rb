@@ -75,9 +75,18 @@ class TestRubyUnits < Test::Unit::TestCase
     DateTime.forced_now = nil
   end
   
+  def test_classification
+    assert_equal :length, "1 m".u.classification
+    assert_equal :length, "1 mm".u.classification
+    assert_equal :mass, "1 lb".u.classification
+    assert_equal :volume, "1 c".u.classification
+    assert_equal :speed, "17 mph".u.classification
+    assert_equal :rate, "68 bpm".u.classification
+  end
+  
   def test_to_yaml
     unit = "1 mm".u
-    assert_equal "--- !ruby/object:Unit \nscalar: 1.0\nnumerator: \n- <milli>\n- <meter>\ndenominator: \n- <1>\nsignature: 1\nbase_scalar: 0.001\n", unit.to_yaml    
+    assert_equal "--- !ruby/object:Unit \nscalar: 1.0\nclassification: :length\nnumerator: \n- <milli>\n- <meter>\ndenominator: \n- <1>\nsignature: 1\nbase_scalar: 0.001\n", unit.to_yaml
   end
 
   def test_time
@@ -114,8 +123,8 @@ class TestRubyUnits < Test::Unit::TestCase
     assert_equal Unit.new(Time.now).scalar,  1143910800
     assert_equal @april_fools.unit.to_time, @april_fools
     assert_equal Time.in('1 day'), @april_fools + 86400
-    assert_equal @april_fools_datetime.inspect, "2006-04-01T12:00:00Z"
-    assert_equal '2453826.5 days'.unit.to_datetime.to_s, "2006-04-01T00:00:00Z"
+    assert_equal @april_fools_datetime.inspect, "2006-04-01T12:00:00+00:00"
+    assert_equal '2453826.5 days'.unit.to_datetime.to_s, "2006-04-01T00:00:00+00:00"
   end
   
   def test_string_helpers
@@ -755,6 +764,7 @@ class TestRubyUnits < Test::Unit::TestCase
       a = '1 +/- 1 mm'.unit
       assert_equal a.to_s, '1 +/- 1 mm' 
     else
+      puts
       puts "Can't test Uncertain Units unless 'Uncertain' gem is installed"
     end  
   end
